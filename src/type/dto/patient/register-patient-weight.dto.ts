@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
-export class CreatePatientWeightDto {
+export class RegisterPatientWeightDto {
   @IsNumber()
   @IsNotEmpty()
   id: number;

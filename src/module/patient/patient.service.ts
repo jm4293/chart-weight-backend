@@ -1,6 +1,9 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma';
-import { CreatePatientWeightDto } from '../../type/dto/patient';
+import {
+  RegisterPatientDto,
+  RegisterPatientWeightDto,
+} from '../../type/dto/patient';
 
 @Injectable()
 export class PatientService {
@@ -35,16 +38,30 @@ export class PatientService {
     });
   }
 
-  async createPatient(dto: CreatePatientWeightDto) {
-    const { id, weight, image_url } = dto;
+  async registerPatient(dto: RegisterPatientDto) {
+    const { name, birth, register_num } = dto;
 
-    const patient = await this.prisma.patient.findUnique({
-      where: { id: Number(id) },
+    const existingPatient = await this.prisma.patient.findUnique({
+      where: { register_num },
     });
 
-    if (!patient) {
-      throw new BadRequestException('해당 id의 환자가 존재하지 않습니다.');
+    if (existingPatient) {
+      throw new BadRequestException('환자가 이미 등록되어 있습니다.');
     }
+
+    return this.prisma.patient.create({
+      data: {
+        name,
+        birth,
+        register_num,
+      },
+    });
+  }
+
+  async registerPatientWeight(dto: RegisterPatientWeightDto) {
+    const { id, weight, image_url } = dto;
+
+    await this.prisma.findPatientById(Number(id));
 
     await this.prisma.weight.create({
       data: {
