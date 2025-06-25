@@ -8,23 +8,31 @@ import {
 } from '@nestjs/common';
 import { LocalAuthGuard } from './local-auth.guard';
 import { AuthService } from './auth.service';
-import { Request } from 'express';
 import { AuthDto } from '../../type/dto/auth';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('login')
-  @HttpCode(200)
   @UseGuards(LocalAuthGuard)
-  async login(@Req() req: Request) {
-    return { message: '로그인 성공', user: req.user };
+  @HttpCode(200)
+  @Post('login')
+  async login(@Req() req) {
+    return new Promise((resolve, reject) => {
+      req.login(req.user, () => {
+        req.session.save(() => {
+          resolve(req.user);
+        });
+      });
+    });
+
+    // return req.user;
   }
 
   @Post('logout')
-  async logout(@Req() req: Request) {
+  logout(@Req() req) {
     req.session.destroy(() => {});
+
     return { message: '로그아웃 성공' };
   }
 

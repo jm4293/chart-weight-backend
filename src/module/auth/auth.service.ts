@@ -1,19 +1,23 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma';
 import * as bcrypt from 'bcrypt';
 import { AuthDto } from '../../type/dto/auth';
+import { User } from 'src/type/entity/user';
 
 @Injectable()
 export class AuthService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async validateUser(email: string, password: string) {
+  async validateUser(
+    email: string,
+    password: string,
+  ): Promise<Omit<User, 'password'> | null> {
     const user = await this.prisma.findUserByEmail(email);
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      throw new BadRequestException('비밀번호가 일치하지 않습니다.');
+      return null;
     }
 
     const { password: _, ...result } = user;

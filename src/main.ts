@@ -1,36 +1,51 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
 import * as session from 'express-session';
 import * as passport from 'passport';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  const configService = app.get(ConfigService);
+
   app.enableCors({
-    origin: true,
+    origin: ['http://localhost:3000', 'http://localhost:3001'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
 
   app.use(
     session({
-      secret: 'your-secret-key', // 환경변수로 관리 권장
+      secret: configService.get('SESSION_SECRET') as string,
       resave: false,
       saveUninitialized: false,
       cookie: {
-        maxAge: 60 * 60 * 1000, // 1시간
-        // httpOnly: true, // JS에서 접근 불가, XSS 방지
-        // secure: process.env.NODE_ENV === 'production', // 배포 환경에서만 HTTPS
-        sameSite: 'lax', // CSRF 방지
+        httpOnly: true,
+        secure: false, // 개발환경에서는 false, 배포시 true(HTTPS)
+        maxAge: 1000 * 60 * 60,
       },
     }),
   );
   app.use(passport.initialize());
   app.use(passport.session());
-  // app.use(cookieParser());
 
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
+
+  const config = new DocumentBuilder()
+    .setTitle('API 문서')
+    .setDescription('API 설명')
+    .setVersion('1.0')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document, {
+    swaggerOptions: {
+      docExpansion: 'none', // 모두 접힘
+      defaultModelsExpandDepth: -1, // Models도 접힘
+    },
+  });
 
   await app.listen(process.env.PORT ?? 3000);
 }

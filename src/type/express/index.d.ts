@@ -1,7 +1,8 @@
 import 'express';
+import { User } from '../entity/user';
 
 declare module 'express' {
   interface Request {
-    user?: any;
+    user: Omit<User, 'password'>;
   }
 }
