@@ -25,7 +25,7 @@ async function bootstrap() {
       cookie: {
         httpOnly: true,
         secure: false, // 개발환경에서는 false, 배포시 true(HTTPS)
-        maxAge: 1000 * 60 * 60,
+        maxAge: 1000 * 60 * 60, // 1시간
       },
     }),
   );

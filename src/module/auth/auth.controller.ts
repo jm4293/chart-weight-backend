@@ -9,6 +9,7 @@ import {
 import { LocalAuthGuard } from './local-auth.guard';
 import { AuthService } from './auth.service';
 import { AuthDto } from '../../type/dto/auth';
+import { Request } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -17,16 +18,8 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @HttpCode(200)
   @Post('login')
-  async login(@Req() req) {
-    return new Promise((resolve, reject) => {
-      req.login(req.user, () => {
-        req.session.save(() => {
-          resolve(req.user);
-        });
-      });
-    });
-
-    // return req.user;
+  async login(@Req() req: Request) {
+    return req.user;
   }
 
   @Post('logout')
