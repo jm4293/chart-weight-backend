@@ -5,9 +5,12 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import * as session from 'express-session';
 import * as passport from 'passport';
+import * as fs from 'fs';
+import * as path from 'path';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   const configService = app.get(ConfigService);
 
@@ -34,6 +37,19 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
+  // 업로드 디렉토리 설정 및 생성
+  const uploadDir = path.join(__dirname, '..', 'uploads');
+
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir);
+  }
+
+  // 업로드 파일 정적 제공
+  app.useStaticAssets(path.join(__dirname, '..', 'uploads'), {
+    prefix: '/uploads/',
+  });
+
+  // Swagger 설정 시작
   const config = new DocumentBuilder()
     .setTitle('API 문서')
     .setDescription('API 설명')
@@ -46,6 +62,7 @@ async function bootstrap() {
       defaultModelsExpandDepth: -1, // Models도 접힘
     },
   });
+  // Swagger 설정 끝
 
   await app.listen(process.env.PORT ?? 3000);
 }

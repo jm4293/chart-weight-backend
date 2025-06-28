@@ -35,8 +35,8 @@ model patient {
 model weight {
   id         Int      @id @default(autoincrement())
   patient_id Int
-  weight     Int?
-  image_url  String?
+  weight     String?
+  file_name  String?
   created_at DateTime @default(now())
   patient    patient  @relation(fields: [patient_id], references: [id])
 }

@@ -28,4 +28,16 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
 
     return ret;
   }
+
+  async findWeightById(id: number) {
+    const ret = await this.weight.findUnique({ where: { id } });
+
+    if (!ret) {
+      throw new BadRequestException(
+        '해당 id의 몸무게 기록이 존재하지 않습니다.',
+      );
+    }
+
+    return ret;
+  }
 }
