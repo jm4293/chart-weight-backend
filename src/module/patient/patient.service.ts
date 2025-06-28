@@ -9,6 +9,17 @@ import {
 export class PatientService {
   constructor(private readonly prisma: PrismaService) {}
 
+  async getPatientList() {
+    return this.prisma.patient.findMany({
+      select: {
+        id: true,
+        name: true,
+        birth: true,
+        register_num: true,
+      },
+    });
+  }
+
   async getPatientById(id: string) {
     return this.prisma.patient.findUnique({
       where: { id: Number(id) },
@@ -17,25 +28,18 @@ export class PatientService {
         name: true,
         birth: true,
         register_num: true,
-        weights: {
-          select: {
-            id: true,
-            weight: true,
-            file_name: true,
-            created_at: true,
-          },
-        },
       },
     });
   }
 
-  async getPatientList() {
-    return this.prisma.patient.findMany({
+  async getPatientWeightById(id: string) {
+    return this.prisma.weight.findMany({
+      where: { patient_id: Number(id) },
       select: {
         id: true,
-        name: true,
-        birth: true,
-        register_num: true,
+        weight: true,
+        file_name: true,
+        created_at: true,
       },
     });
   }

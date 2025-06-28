@@ -40,6 +40,14 @@ export class PatientController {
     return { patient: patientInfo };
   }
 
+  @Get('weight/:id')
+  @UseGuards(AuthenticatedGuard)
+  async getPatientWeightById(@Param('id') id: string) {
+    const patientWeight = await this.patientService.getPatientWeightById(id);
+
+    return { weights: patientWeight };
+  }
+
   @Post('register')
   @UseGuards(AuthenticatedGuard)
   async registerPatient(@Body() dto: RegisterPatientDto) {
