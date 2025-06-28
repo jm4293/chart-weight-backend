@@ -13,13 +13,15 @@ export class PatientService {
     return this.prisma.patient.findUnique({
       where: { id: Number(id) },
       select: {
+        id: true,
         name: true,
         birth: true,
         register_num: true,
         weights: {
           select: {
+            id: true,
             weight: true,
-            image_url: true,
+            file_name: true,
             created_at: true,
           },
         },
@@ -59,7 +61,7 @@ export class PatientService {
   }
 
   async registerPatientWeight(dto: RegisterPatientWeightDto) {
-    const { id, weight, image_url } = dto;
+    const { id, weight } = dto;
 
     await this.prisma.findPatientById(Number(id));
 
@@ -67,8 +69,28 @@ export class PatientService {
       data: {
         patient_id: Number(id),
         weight,
-        image_url,
       },
+    });
+  }
+
+  async registerPatientWeightImage(dto: { id: string; filename: string }) {
+    const { id, filename } = dto;
+
+    await this.prisma.findPatientById(Number(id));
+
+    await this.prisma.weight.create({
+      data: {
+        patient_id: Number(id),
+        file_name: filename,
+      },
+    });
+  }
+
+  async deletePatientWeight(id: string) {
+    await this.prisma.findWeightById(Number(id));
+
+    await this.prisma.weight.delete({
+      where: { id: Number(id) },
     });
   }
 }

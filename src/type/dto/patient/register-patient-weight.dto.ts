@@ -6,8 +6,5 @@ export class RegisterPatientWeightDto {
   id: number;
 
   @IsOptional()
-  weight: number | null;
-
-  @IsOptional()
-  image_url: string | null;
+  weight: string | null;
 }

@@ -6,6 +6,9 @@ import {
   Post,
   UseGuards,
   Req,
+  UseInterceptors,
+  UploadedFile,
+  Delete,
 } from '@nestjs/common';
 import { PatientService } from './patient.service';
 import {
@@ -14,10 +17,20 @@ import {
 } from '../../type/dto/patient';
 import { Request } from 'express';
 import { AuthenticatedGuard } from '../../common/guard/authenticated.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { multerOptions } from '../../common/multer';
 
 @Controller('patient')
 export class PatientController {
   constructor(private readonly patientService: PatientService) {}
+
+  @Get('list')
+  @UseGuards(AuthenticatedGuard)
+  async getPatientList() {
+    const patientInfo = await this.patientService.getPatientList();
+
+    return { patients: patientInfo };
+  }
 
   @Get(':id')
   @UseGuards(AuthenticatedGuard)
@@ -27,27 +40,41 @@ export class PatientController {
     return { patient: patientInfo };
   }
 
-  @Get()
-  @UseGuards(AuthenticatedGuard)
-  async getPatientList() {
-    const patientInfo = await this.patientService.getPatientList();
-
-    return { patient: patientInfo };
-  }
-
   @Post('register')
   @UseGuards(AuthenticatedGuard)
   async registerPatient(@Body() dto: RegisterPatientDto) {
-    const patientInfo = await this.patientService.registerPatient(dto);
+    await this.patientService.registerPatient(dto);
 
-    return { patient: patientInfo };
+    return {};
   }
 
   @Post('weight')
   @UseGuards(AuthenticatedGuard)
   async registerPatientWeight(@Body() dto: RegisterPatientWeightDto) {
-    const patientInfo = await this.patientService.registerPatientWeight(dto);
+    await this.patientService.registerPatientWeight(dto);
 
-    return { patient: patientInfo };
+    return {};
+  }
+
+  @Post('weight-image')
+  @UseGuards(AuthenticatedGuard)
+  @UseInterceptors(FileInterceptor('file', multerOptions))
+  async registerPatientWeightImage(
+    @Body('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const { filename } = file;
+
+    await this.patientService.registerPatientWeightImage({ id, filename });
+
+    return { imageUrl: filename };
+  }
+
+  @Delete('weight/:id')
+  @UseGuards(AuthenticatedGuard)
+  async deletePatientWeight(@Param('id') id: string) {
+    await this.patientService.deletePatientWeight(id);
+
+    return {};
   }
 }
