@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma';
 import * as bcrypt from 'bcrypt';
 import { AuthDto } from '../../type/dto/auth';
-import { User } from 'src/type/entity/user';
+import { UserEntity } from 'src/type/entity/user';
 
 @Injectable()
 export class AuthService {
@@ -11,7 +11,7 @@ export class AuthService {
   async validateUser(
     email: string,
     password: string,
-  ): Promise<Omit<User, 'password'> | null> {
+  ): Promise<Omit<UserEntity, 'password'> | null> {
     const user = await this.prisma.findUserByEmail(email);
 
     const isMatch = await bcrypt.compare(password, user.password);

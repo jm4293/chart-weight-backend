@@ -10,7 +10,7 @@ import { UserService } from '../user/user.service';
 @Module({
   imports: [PrismaModule, PassportModule.register({ session: true })],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, SessionSerializer, UserService],
+  providers: [AuthService, UserService, LocalStrategy, SessionSerializer],
   exports: [AuthService],
 })
 export class AuthModule {}

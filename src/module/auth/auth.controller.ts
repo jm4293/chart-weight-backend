@@ -19,11 +19,11 @@ export class AuthController {
   @HttpCode(200)
   @Post('login')
   async login(@Req() req: Request) {
-    return req.user;
+    return {};
   }
 
   @Post('logout')
-  logout(@Req() req) {
+  logout(@Req() req: Request) {
     req.session.destroy(() => {});
 
     return { message: '로그아웃 성공' };
