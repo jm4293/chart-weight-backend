@@ -7,15 +7,17 @@ import * as session from 'express-session';
 import * as passport from 'passport';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as morgan from 'morgan';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.use(morgan('combined'));
 
   const configService = app.get(ConfigService);
 
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost:3001'],
+    origin: ['http://localhost:3000', 'http://8134293.iptime.org:3000'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
